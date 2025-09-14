@@ -1,0 +1,40 @@
+name: ci
+on:
+push:
+pull_request:
+jobs:
+build-and-test:
+runs-on: ubuntu-latest
+services:
+app:
+image: eclipse-temurin:17
+options: >-
+  --health-cmd="curl -f http://localhost:8080/actuator/health || exit 1" --health-interval=10s --health-timeout=5s --health-retries=30
+steps:
+  - uses: actions/checkout@v4
+  - name: Set up JDK
+uses: actions/setup-java@v4
+with:
+distribution: temurin
+java-version: '17'
+  - name: Build app
+working-directory: app
+run: mvn -q -e -B -DskipTests package
+  - name: Run Spring app
+run: |
+  java -jar app/target/aqe-app-0.0.1.jar &
+  echo $! > app.pid
+  sleep 5
+- name: API tests (Karate)
+working-directory: tests-api
+run: mvn -q -e -B test
+  - name: UI tests (Playwright)
+uses: actions/setup-node@v4
+with:
+node-version: '20'
+  - run: npm i
+working-directory: tests-ui
+  - run: npx playwright install --with-deps
+working-directory: tests-ui
+  - run: npm test
+working-directory: tests-ui
