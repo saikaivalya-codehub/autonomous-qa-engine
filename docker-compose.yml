@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+app:
+build: ./app
+image: sai/aqe-app
+container_name: aqe-app
+ports: ["8080:8080"]
+agent:
+build: ./agent
+image: sai/aqe-agent
+container_name: aqe-agent
+environment:
+  - APP_BASE=http://app:8080
+ports: ["8000:8000"]
+depends_on: [app]
+tests:
+image: maven:3.9-eclipse-temurin-17
+working_dir: /work
+volumes:
+  - ./tests-api:/work
+depends_on: [app]
+entrypoint: ["mvn","-q","test"]
