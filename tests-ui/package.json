@@ -1,0 +1,11 @@
+{
+  "name": "tests-ui",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@playwright/test": "^1.47.2"
+  },
+  "scripts": {
+    "test": "playwright test"
+  }
+}
